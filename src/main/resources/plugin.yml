@@ -1,0 +1,4 @@
+name: EqualsIpLimitPlayer
+version: '${project.version}'
+main: net.lemon-server.equalsiplimitplayer.EqualsIpLimitPlayer
+api-version: 1.18
