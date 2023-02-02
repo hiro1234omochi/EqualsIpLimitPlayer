@@ -17,20 +17,25 @@ public class eventcatch implements Listener{
         for(byte b:e.getPlayer().getAddress().getAddress().getAddress()){
             i_list.add(Integer.valueOf(Byte.toUnsignedInt(b)).toString());
         }
-        String j=String.join("_",i_list);
-        if(EqualsIpLimitPlayer.config.contains("ignore-ip."+j)){
-            return;
-        }
-        if(EqualsIpLimitPlayer.config.contains("ip."+j)){
-            if(EqualsIpLimitPlayer.config.getInt("ip."+j)==EqualsIpLimitPlayer.config.getInt("limit-ip")){
-                e.getPlayer().kickPlayer("同一ipで"+(EqualsIpLimitPlayer.config.getInt("limit-ip")+1)+"以上の同時接続は許可されていません。");
-            }else{
-                EqualsIpLimitPlayer.config.set("ip."+j,EqualsIpLimitPlayer.config.getInt("ip."+j)+1);
+        String ip_under=String.join("_",i_list);
+        for (String key : EqualsIpLimitPlayer.config.getConfigurationSection("ignore-ip").getKeys(false)) {
+            //getLogger().info(key + config.getString("MapKeys." + key));
+            if(ip_under.equals(key)){
+                return;
             }
-        }else{
-            EqualsIpLimitPlayer.config.set("ip."+j,1);
         }
-        EqualsIpLimitPlayer.plugin.saveConfig();
+        int limit_ip=EqualsIpLimitPlayer.config.getInt("limit-ip");
+        int count=0;
+        for(String a:EqualsIpLimitPlayer.player_ip){
+            if(a.equals(ip_under)){
+                count++;
+            }
+        }
+        if(limit_ip<count){
+            EqualsIpLimitPlayer.player_ip.add(ip_under);
+        }else{
+            e.getPlayer().kickPlayer("同じipから"+limit_ip+"個を超えるアクセスが確認されました");
+        }
     }
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
@@ -38,8 +43,11 @@ public class eventcatch implements Listener{
         for(byte b:e.getPlayer().getAddress().getAddress().getAddress()){
             i_list.add(Integer.valueOf(Byte.toUnsignedInt(b)).toString());
         }
-        String j=String.join("_",i_list);
-        EqualsIpLimitPlayer.config.set("ip."+j,EqualsIpLimitPlayer.config.getInt("ip."+j)-1);
-        EqualsIpLimitPlayer.plugin.saveConfig();
+        String ip_under=String.join("_",i_list);
+        for(int i=0;i<EqualsIpLimitPlayer.player_ip.size();i++){
+            if(EqualsIpLimitPlayer.player_ip.get(i).equals(ip_under)){
+                EqualsIpLimitPlayer.player_ip.remove(i);
+            }
+        }
     }
 }
